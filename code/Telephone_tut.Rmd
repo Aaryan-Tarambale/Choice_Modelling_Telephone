@@ -1,0 +1,40 @@
+apollo_control = list(
+  modelName  = "1st Phone Model",
+  modelDescr = "binary logit with cost only",
+  indivID    = "ID"
+)
+
+apollo_beta = c(
+  asc_standard = 0,
+  b_cost       = 0
+)
+
+apollo_fixed = NULL
+
+apollo_inputs = apollo_validateInputs()
+
+apollo_probabilities = function (apollo_beta, apollo_inputs, functionality="estimate") {
+  apollo_attach(apollo_beta, apollo_inputs)
+  on.exit(apollo_detach(apollo_beta, apollo_inputs))
+  
+  P = list()
+  V = list()
+  
+  V[["budget"]]   =                b_cost * cost1
+  V[["standard"]] = asc_standard + b_cost * cost2
+  
+  mnl_settings = list(
+    alternatives = c(budget = 1, standard = 2),
+    avail        = list(budget = avail1, standard = avail2),
+    choiceVar    = choice,
+    V            = V
+  )
+  
+  P[["model"]] = apollo_mnl(mnl_settings, functionality)
+  P = apollo_prepareProb(P, apollo_inputs, functionality)
+  
+  return(P)
+}
+
+tel_m1 = apollo_estimate(apollo_beta, apollo_fixed, apollo_probabilities, apollo_inputs)
+summary(tel_m1)
